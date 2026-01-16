@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chole - Mining Industry News</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg-primary: #0a0a0b;
+      --bg-secondary: #111113;
+      --bg-tertiary: #1a1a1d;
+      --bg-card: #151517;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a5;
+      --text-tertiary: #6a6a70;
+      --accent-gold: #d4a853;
+      --accent-copper: #c87533;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --border-color: #2a2a2e;
+      --tab-active: #d4a853;
+      --tab-inactive: #6a6a70;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* App Container */
+    #root {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--bg-primary);
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      background: var(--bg-primary);
+      z-index: 100;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo {
+      font-family: 'Inter', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -1px;
+    }
+
+    .logo .gold-l {
+      background: linear-gradient(
+        180deg, 
+        #ffd700 0%, 
+        #ffec8b 15%,
+        #daa520 30%,
+        #ffd700 45%,
+        #ffec8b 50%,
+        #daa520 55%,
+        #b8860b 70%,
+        #daa520 85%,
+        #ffd700 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3)) drop-shadow(0 0 8px rgba(255,215,0,0.4));
+    }
+
+    .tagline {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .profile-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .profile-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+
+    /* Profile Menu */
+    .profile-menu {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      min-width: 200px;
+      overflow: hidden;
+      z-index: 150;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .profile-menu-email {
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .profile-menu-item {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .profile-menu-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    /* Commodity Price Bar - ZACQ Style */
+    .price-bar-container {
+      padding: 16px 20px;
+      background: var(--bg-primary);
+    }
+
+    .price-bar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .price-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .price-bar-title {
+      font-size: 14px;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .price-bar-badge {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      background: var(--bg-tertiary);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .date-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--accent-gold);
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: rgba(212, 168, 83, 0.15);
+      font-weight: 500;
+    }
+
+    .date-selector svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .price-item {
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      padding: 12px 10px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .price-symbol {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .price-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .price-change {
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .price-change.up { color: var(--accent-green); }
+    .price-change.down { color: var(--accent-red); }
+
+    /* News Tabs */
+    .tabs-container {
+      padding: 16px 20px 0;
+      background: var(--bg-primary);
+      position: sticky;
+      top: 69px;
+      z-index: 99;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      padding: 12px 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--tab-inactive);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      color: var(--tab-active);
+      border-bottom-color: var(--tab-active);
+    }
+
+    /* News Cards */
+    .news-container {
+      padding: 16px 20px;
+      padding-bottom: 100px;
+    }
+
+    .news-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .news-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-gold);
+    }
+
+    .news-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      position: relative;
+    }
+
+    .news-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .news-source-badge {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .news-content {
+      padding: 16px;
+    }
+
+    .news-headline {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .news-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .news-source {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .news-category {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: var(--bg-tertiary);
+      color: var(--accent-gold);
+      font-weight: 500;
+    }
+
+    .news-favorite {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .news-favorite svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-tertiary);
+      transition: color 0.2s;
+    }
+
+    .news-favorite.active svg {
+      color: var(--accent-gold);
+      fill: var(--accent-gold);
+    }
+
+    /* News Detail Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 200;
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-primary);
+      width: 100%;
+      max-width: 430px;
+      max-height: 95vh;
+      border-radius: 24px 24px 0 0;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      position: sticky;
+      top: 0;
+      background: var(--bg-primary);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-close {
+      background: var(--bg-tertiary);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .detail-image {
+      width: 100%;
+      height: 200px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .detail-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .detail-sources {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .source-icons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .source-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      background: var(--bg-tertiary);
+    }
+
+    .source-count {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .detail-headline {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 20px;
+    }
+
+    .detail-bullets {
+      margin-bottom: 24px;
+    }
+
+    .bullet-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .bullet-item:last-child {
+      border-bottom: none;
+    }
+
+    .bullet-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+
+    .bullet-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .bullet-source {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 6px;
+      background: var(--bg-tertiary);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* Ask AI */
+    .ask-ai-container {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .ask-ai-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .ask-ai-input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .ask-ai-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .ask-ai-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: color 0.2s;
+    }
+
+    .nav-item.active {
+      color: var(--accent-gold);
+    }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .nav-item span {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* Company Spotlight */
+    .spotlight-container {
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+
+    .spotlight-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .spotlight-badge {
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
+      color: var(--bg-primary);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .spotlight-week {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .spotlight-company-header {
+      margin-bottom: 24px;
+    }
+
+    .spotlight-company-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .spotlight-tickers {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .spotlight-ticker {
+      font-size: 12px;
+      color: var(--accent-gold);
+      background: var(--bg-tertiary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .spotlight-section {
+      margin-bottom: 28px;
+    }
+
+    .spotlight-section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spotlight-section-title::before {
+      content: '';
+      width: 3px;
+      height: 18px;
+      background: var(--accent-gold);
+      border-radius: 2px;
+    }
+
+    .spotlight-text {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    .spotlight-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .spotlight-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .spotlight-stat {
+      background: var(--bg-tertiary);
+      padding: 14px;
+      border-radius: 10px;
+    }
+
+    .spotlight-stat-label {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .spotlight-stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .spotlight-thesis-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .spotlight-thesis-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--accent-gold);
+    }
+
+    .spotlight-thesis-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .spotlight-cta {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
+      color: var(--bg-primary);
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      margin-top: 24px;
+    }
+
+    .spotlight-disclaimer {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-align: center;
+      margin-top: 16px;
+      font-style: italic;
+    }
+
+    /* Media Player */
+    .media-container {
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+
+    .podcast-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .podcast-header {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .podcast-artwork {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .podcast-artwork svg {
+      width: 40px;
+      height: 40px;
+      color: var(--bg-primary);
+    }
+
+    .podcast-info {
+      flex: 1;
+    }
+
+    .podcast-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .podcast-date {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+
+    .podcast-duration {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .audio-player {
+      width: 100%;
+    }
+
+    .audio-player audio {
+      width: 100%;
+      height: 40px;
+    }
+
+    /* Onboarding */
+    .onboarding-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg-primary);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .onboarding-container {
+      max-width: 430px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .onboarding-welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .onboarding-logo {
+      font-family: 'Inter', sans-serif;
+      font-size: 72px;
+      font-weight: 700;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: -3px;
+    }
+
+    .onboarding-logo .gold-l {
+      background: linear-gradient(
+        180deg, 
+        #ffd700 0%, 
+        #ffec8b 15%,
+        #daa520 30%,
+        #ffd700 45%,
+        #ffec8b 50%,
+        #daa520 55%,
+        #b8860b 70%,
+        #daa520 85%,
+        #ffd700 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3)) drop-shadow(0 0 12px rgba(255,215,0,0.5));
+    }
+
+    .onboarding-tagline {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 18px;
+      margin-bottom: 40px;
+      font-weight: 500;
+    }
+
+    .onboarding-question {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .onboarding-subtext {
+      font-size: 14px;
+      color: var(--text-tertiary);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .onboarding-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      overflow-y: auto;
+      touch-action: manipulation;
+    }
+
+    .onboarding-option {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .onboarding-option:hover:not(.selected) {
+        border-color: rgba(212, 168, 83, 0.5);
+      }
+    }
+
+    .onboarding-option:active {
+      transform: scale(0.98);
+    }
+
+    .onboarding-option.selected {
+      border-color: var(--accent-gold) !important;
+      background: rgba(212, 168, 83, 0.1) !important;
+    }
+
+    .option-checkmark {
+      color: var(--accent-gold);
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .onboarding-option-text {
+      flex: 1;
+    }
+
+    .onboarding-option-label {
+      font-weight: 500;
+    }
+
+    .onboarding-progress {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border-color);
+    }
+
+    .progress-dot.active {
+      background: var(--accent-gold);
+    }
+
+    .onboarding-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .onboarding-btn {
+      flex: 1;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .onboarding-btn.secondary {
+      background: var(--bg-tertiary);
+      border: none;
+      color: var(--text-secondary);
+    }
+
+    .onboarding-btn.primary {
+      background: var(--accent-gold);
+      border: none;
+      color: var(--bg-primary);
+    }
+
+    .onboarding-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Google Sign In */
+    .google-signin-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 24px;
+      background: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+
+    .google-signin-btn img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .skip-signin {
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 12px;
+    }
+
+    .skip-signin:hover {
+      color: var(--text-secondary);
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      color: var(--text-tertiary);
+      margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      color: var(--text-tertiary);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5-gaXji9Pe9NnYeqxTIAUVPD_mT58bDw",
+      authDomain: "chole-mining.firebaseapp.com",
+      projectId: "chole-mining",
+      storageBucket: "chole-mining.firebasestorage.app",
+      messagingSenderId: "561792990462",
+      appId: "1:561792990462:web:a371a2be1ca9e26ef0f9af"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Constants
+    const COMMODITIES = [
+      { id: 'gold', symbol: 'Gold' },
+      { id: 'silver', symbol: 'Silver' },
+      { id: 'copper', symbol: 'Copper' },
+      { id: 'critical_minerals', symbol: 'Critical Minerals' },
+      { id: 'uranium', symbol: 'Uranium' },
+      { id: 'rare_earth', symbol: 'Rare Earths' },
+    ];
+
+    const REGIONS = [
+      { id: 'usa', label: 'USA' },
+      { id: 'canada', label: 'Canada' },
+      { id: 'australia', label: 'Australia' },
+      { id: 'china', label: 'China' },
+      { id: 'latin_america', label: 'Latin America' },
+      { id: 'africa', label: 'Africa' },
+    ];
+
+    const ONBOARDING_QUESTIONS = [
+      {
+        id: 'commodity',
+        question: 'Which commodity interests you?',
+        subtext: '(select multiple)',
+        multiple: true,
+        options: COMMODITIES.map(c => ({ value: c.id, label: c.symbol }))
+      },
+      {
+        id: 'region',
+        question: 'Which region are you focused on?',
+        subtext: '(select multiple)',
+        multiple: true,
+        options: REGIONS.map(r => ({ value: r.id, label: r.label }))
+      }
+    ];
+
+    // Sample Data (will be replaced with Firestore data)
+    const SAMPLE_NEWS = [
+      {
+        id: 1,
+        category: 'Copper',
+        headline: 'Copper price nears $13,000 on tariff fears and supply strain',
+        source: 'Mining.com',
+        sourceCount: 3,
+        image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800',
+        bullets: [
+          { text: 'Mine outages in Chile and Peru, combined with US tariff uncertainty, have pushed copper toward $13,000/ton for the first time since 2024. Codelco\'s El Teniente and Escondida both reported unplanned maintenance shutdowns.', source: 'Mining.com' },
+          { text: 'Chinese smelters are facing a concentrate shortage after TC/RC rates collapsed to historic lows of $15/ton, forcing production cuts of up to 10% across major refineries including Jiangxi Copper.', source: 'Reuters' },
+          { text: 'Goldman Sachs raised their 2026 copper forecast to $12,500/ton average, citing structural deficits beginning Q2 as EV and grid infrastructure demand outpaces new mine supply by an estimated 500kt.', source: 'Bloomberg' }
+        ],
+        summary: 'Copper prices are approaching $13,000/ton amid supply disruptions in South America and tariff uncertainty.'
+      },
+      {
+        id: 2,
+        category: 'Gold',
+        headline: 'Gold hits new record above $2,100 as Fed signals rate cuts',
+        source: 'Kitco',
+        sourceCount: 5,
+        image: 'https://images.unsplash.com/photo-1610375461246-83df859d849d?w=800',
+        bullets: [
+          { text: 'Spot gold surged to $2,127/oz, breaking through previous resistance levels after Federal Reserve Chair Powell indicated rate cuts could begin as early as March.', source: 'Kitco' },
+          { text: 'Central bank buying continues unabated, with China adding 25 tonnes in December alone. Total 2025 central bank purchases are on track to exceed 1,100 tonnes.', source: 'World Gold Council' },
+          { text: 'Major gold miners Barrick and Newmont both raised 2026 production guidance, citing improved grades at key operations in Nevada and Ghana.', source: 'Mining.com' }
+        ],
+        summary: 'Gold reached a new all-time high as the Federal Reserve signaled upcoming rate cuts and central bank buying remained strong.'
+      },
+      {
+        id: 3,
+        category: 'Uranium',
+        headline: 'AI data center boom turbocharges uranium demand outlook',
+        source: 'Mining.com',
+        sourceCount: 4,
+        image: 'https://images.unsplash.com/photo-1591696205602-2f950c417cb9?w=800',
+        bullets: [
+          { text: 'Tech giants including Microsoft, Google, and Amazon have signed agreements to purchase nuclear power for AI data centers, driving a surge in long-term uranium contracting activity.', source: 'Mining.com' },
+          { text: 'Spot uranium prices jumped 8% this week to $95/lb, with analysts at Canaccord forecasting $120/lb by year-end as supply remains constrained.', source: 'Canaccord' },
+          { text: 'Cameco raised production guidance at McArthur River, targeting 18 million pounds in 2026, though this remains below contracted volumes.', source: 'Reuters' }
+        ],
+        summary: 'The AI boom is creating unprecedented demand for nuclear power, driving uranium prices higher.'
+      },
+      {
+        id: 4,
+        category: 'M&A',
+        headline: 'BHP launches $49B takeover bid for Anglo American',
+        source: 'Bloomberg',
+        sourceCount: 6,
+        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800',
+        bullets: [
+          { text: 'BHP has proposed an all-share offer valuing Anglo American at $49 billion, representing a 31% premium to the undisturbed share price.', source: 'Bloomberg' },
+          { text: 'The deal would create the world\'s largest copper producer, combining BHP\'s Escondida with Anglo\'s Quellaveco and Los Bronces operations.', source: 'Financial Times' },
+          { text: 'Anglo\'s board is reportedly considering the offer but may seek a higher premium given the strategic value of its copper assets in a supply-constrained market.', source: 'Reuters' }
+        ],
+        summary: 'BHP has made a $49 billion bid for Anglo American, seeking to create a copper mining giant.'
+      },
+      {
+        id: 5,
+        category: 'Lithium',
+        headline: 'Lithium prices stabilize as EV demand picks up in China',
+        source: 'Fastmarkets',
+        sourceCount: 3,
+        image: 'https://images.unsplash.com/photo-1619641805634-98e5c833f0a8?w=800',
+        bullets: [
+          { text: 'Lithium carbonate prices in China have stabilized around 95,000 yuan/tonne after falling 70% from 2023 highs, with traders reporting improved spot demand.', source: 'Fastmarkets' },
+          { text: 'BYD reported record January deliveries of 320,000 vehicles, suggesting the EV demand slowdown may be bottoming out in China.', source: 'Bloomberg' },
+          { text: 'Several high-cost Australian spodumene producers have announced production curtailments, which analysts expect to help rebalance the market by Q3.', source: 'Mining.com' }
+        ],
+        summary: 'Lithium prices are showing signs of stabilization as Chinese EV demand improves and supply curtailments take effect.'
+      }
+    ];
+
+    const SAMPLE_JUNIOR_NEWS = [
+      {
+        id: 101,
+        category: 'Drill Results',
+        headline: 'Revival Gold Consolidates Mercur Gold Project',
+        source: 'Junior Mining Network',
+        ticker: 'RVG.V',
+        image: 'https://images.unsplash.com/photo-1578319439584-104c94d37305?w=800',
+        bullets: [
+          { text: 'Revival Gold has exercised its option to acquire 100% of Barrick\'s interest in the Mercur Gold Project in Utah, consolidating ownership of this past-producing mine.', source: 'JMN' },
+          { text: 'The Mercur project hosts 2.5 million ounces of gold in measured and indicated resources, with significant expansion potential along strike.', source: 'Company NR' },
+          { text: 'Revival Gold is now one of the largest pure gold developers in the United States, with a clear path to production.', source: 'JMN' }
+        ]
+      },
+      {
+        id: 102,
+        category: 'Drill Results',
+        headline: 'ATEX Intersects 146m of 2.00% CuEq at B2B Zone',
+        source: 'Junior Mining Network',
+        ticker: 'ATX.V',
+        image: 'https://images.unsplash.com/photo-1535813547-99c456a41d4a?w=800',
+        bullets: [
+          { text: 'ATEX Resources reported exceptional drill results from the B2B Zone in Chile, with 146 meters grading 2.00% copper equivalent.', source: 'JMN' },
+          { text: 'The intercept includes elevated gold grades, with results still pending from over 600 meters of additional drilling.', source: 'Company NR' },
+          { text: 'The Valeriano project is emerging as one of the most significant copper-gold discoveries in Chile in recent years.', source: 'JMN' }
+        ]
+      }
+    ];
+
+    const SAMPLE_PRICES = [
+      { symbol: 'Gold', value: '$2,127', change: '+1.2%', up: true },
+      { symbol: 'Silver', value: '$24.50', change: '+0.8%', up: true },
+      { symbol: 'Copper', value: '$4.35', change: '+2.1%', up: true },
+      { symbol: 'Lithium', value: '$12.8k', change: '-0.5%', up: false },
+      { symbol: 'Uranium', value: '$95.20', change: '+3.4%', up: true },
+      { symbol: 'Nickel', value: '$16.2k', change: '-1.2%', up: false },
+      { symbol: 'Platinum', value: '$982', change: '+0.3%', up: true },
+      { symbol: 'Iron Ore', value: '$128', change: '+1.8%', up: true },
+    ];
+
+    const SPOTLIGHT_DATA = {
+      ticker: 'NIM',
+      name: 'Nicola Mining Inc.',
+      tickers: ['TSX-V: NIM', 'OTCQB: HUSIF', 'FSE: HLIA'],
+      website: 'https://nicolamining.com',
+      sections: {
+        opportunity: {
+          title: 'The Opportunity',
+          content: `In a market where most junior mining companies burn cash while hoping for a discovery, Nicola Mining stands apart. The company has built something exceptionally rare in the junior space: a <strong>revenue-generating platform</strong> that funds exploration while providing immediate exposure to gold, silver, and copper — three metals at the heart of the global energy transition and monetary uncertainty.
+
+Operating out of Merritt, British Columbia — one of North America's most mining-friendly jurisdictions — Nicola has assembled a portfolio of permitted, de-risked assets that position it as a unique play for investors seeking junior mining exposure without the typical binary risk profile.`
+        },
+        coreAsset: {
+          title: "BC's Only Permitted Toll Mill",
+          content: `At the center of Nicola's business model is the <strong>Craigmont Mill</strong>, a fully-permitted 200 tonne-per-day processing facility capable of handling both gold and silver ore through gravity and flotation circuits. This isn't a development-stage asset or a feasibility study — it's an operating mill generating revenue today.
+
+What makes this particularly valuable is scarcity: <strong>Craigmont is the only provincially-permitted toll mill in British Columbia</strong> capable of processing third-party precious metals ore.`,
+          partnerships: [
+            { name: 'Talisker Resources', desc: 'Bralorne Gold Mine processing' },
+            { name: 'Blue Lagoon Resources', desc: 'Gold and silver processing' },
+            { name: 'Osisko Development', desc: 'Additional agreements' }
+          ]
+        },
+        copper: {
+          title: 'Copper Exposure: Adjacent to Canada\'s Largest Mine',
+          content: `Nicola's <strong>New Craigmont Copper Project</strong> represents one of the more compelling exploration opportunities in the Canadian copper space. The 10,800+ hectare property sits within the Guichon Creek Batholith — the same geological formation that hosts <strong>Teck's Highland Valley Copper</strong>, Canada's largest copper mine.
+
+Recent drilling has confirmed the continuation of copper mineralization, with intercepts including <strong>53.0 metres of over 1.0% copper</strong> in the MARB/CAS zones.`,
+          stats: [
+            { label: 'Property Size', value: '10,800+ ha' },
+            { label: 'Historic Production', value: '33M tonnes' },
+            { label: 'Historic Grade', value: '1.3% Cu' },
+            { label: 'Recent Intercept', value: '53m @ 1%+ Cu' }
+          ]
+        },
+        thesis: {
+          title: 'The Investment Thesis',
+          points: [
+            { title: 'Revenue Generation', desc: 'Toll milling operation generates cash while peers burn capital' },
+            { title: 'Multi-Commodity Exposure', desc: 'Gold, silver, and copper through owned assets and partnerships' },
+            { title: 'Permitted Assets', desc: 'Every major asset is permitted — a competitive advantage' },
+            { title: 'District-Scale Copper', desc: 'Adjacent to Canada\'s largest copper mine' },
+            { title: 'Near-Term Catalysts', desc: 'NASDAQ uplisting targeted Q1 2026' }
+          ]
+        }
+      }
+    };
+
+    // Icons
+    const Icons = {
+      user: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+      home: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+      play: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/></svg>,
+      close: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+      mic: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>,
+      heart: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+      calendar: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+      headphones: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>,
+      help: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+      search: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+      chevron: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>,
+    };
+
+    // App Component
+    function App() {
+      const [user, setUser] = React.useState(null);
+      const [loading, setLoading] = React.useState(true);
+      const [showOnboarding, setShowOnboarding] = React.useState(false);
+      const [preferences, setPreferences] = React.useState(null);
+      const [activeNav, setActiveNav] = React.useState('news');
+      const [activeTab, setActiveTab] = React.useState('today');
+      const [selectedArticle, setSelectedArticle] = React.useState(null);
+      const [showProfileMenu, setShowProfileMenu] = React.useState(false);
+
+      const handleProfileClick = () => {
+        if (user) {
+          setShowProfileMenu(!showProfileMenu);
+        } else {
+          handleGoogleSignIn();
+        }
+      };
+
+      // Close profile menu when clicking elsewhere
+      React.useEffect(() => {
+        const handleClickOutside = () => setShowProfileMenu(false);
+        if (showProfileMenu) {
+          setTimeout(() => document.addEventListener('click', handleClickOutside), 0);
+          return () => document.removeEventListener('click', handleClickOutside);
+        }
+      }, [showProfileMenu]);
+
+      // Auth state listener
+      React.useEffect(() => {
+        // Check for redirect result first
+        auth.getRedirectResult().catch((error) => {
+          console.error('Redirect result error:', error);
+        });
+
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+          setUser(user);
+          
+          if (user) {
+            // Check if user has preferences
+            try {
+              const doc = await db.collection('users').doc(user.uid).get();
+              if (doc.exists) {
+                setPreferences(doc.data().preferences);
+                setShowOnboarding(false);
+              } else {
+                // Check local storage as fallback
+                const localPrefs = localStorage.getItem('chole_preferences');
+                if (localPrefs) {
+                  setPreferences(JSON.parse(localPrefs));
+                  setShowOnboarding(false);
+                } else {
+                  setShowOnboarding(true);
+                }
+              }
+            } catch (e) {
+              const localPrefs = localStorage.getItem('chole_preferences');
+              if (localPrefs) {
+                setPreferences(JSON.parse(localPrefs));
+                setShowOnboarding(false);
+              } else {
+                setShowOnboarding(true);
+              }
+            }
+          } else {
+            // Check local storage for guest preferences
+            const localPrefs = localStorage.getItem('chole_preferences');
+            if (localPrefs) {
+              setPreferences(JSON.parse(localPrefs));
+              setShowOnboarding(false);
+            } else {
+              setShowOnboarding(true);
+            }
+          }
+          
+          setLoading(false);
+        });
+
+        return () => unsubscribe();
+      }, []);
+
+      const handleGoogleSignIn = async () => {
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          // Always use redirect - more reliable across all browsers
+          await auth.signInWithRedirect(provider);
+        } catch (error) {
+          console.error('Sign in error:', error);
+          alert('Sign in failed. Please try again or continue as guest.');
+        }
+      };
+
+      const handleSignOut = async () => {
+        try {
+          await auth.signOut();
+          localStorage.removeItem('chole_preferences');
+          setPreferences(null);
+          setShowOnboarding(true);
+          setShowProfileMenu(false);
+        } catch (error) {
+          console.error('Sign out error:', error);
+        }
+      };
+
+      const handleOnboardingComplete = async (prefs) => {
+        try {
+          setPreferences(prefs);
+          
+          if (user) {
+            try {
+              await db.collection('users').doc(user.uid).set({
+                preferences: prefs,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+              });
+            } catch (e) {
+              localStorage.setItem('chole_preferences', JSON.stringify(prefs));
+            }
+          } else {
+            localStorage.setItem('chole_preferences', JSON.stringify(prefs));
+          }
+          
+          setShowOnboarding(false);
+        } catch (error) {
+          console.error('Onboarding error:', error);
+          setPreferences(prefs);
+          localStorage.setItem('chole_preferences', JSON.stringify(prefs));
+          setShowOnboarding(false);
+        }
+      };
+
+      const getTabs = () => {
+        const tabs = ['today'];
+        // Add first selected commodity as a tab
+        if (preferences?.commodity && preferences.commodity.length > 0) {
+          tabs.push(preferences.commodity[0]);
+        }
+        // Add first selected region as a tab
+        if (preferences?.region && preferences.region.length > 0) {
+          tabs.push('region_' + preferences.region[0]);
+        }
+        tabs.push('junior', 'spotlight');
+        return tabs;
+      };
+
+      const getTabLabel = (tab) => {
+        const labels = {
+          today: 'Today',
+          junior: 'Junior Mining',
+          spotlight: 'Spotlight',
+          gold: 'Gold',
+          silver: 'Silver',
+          copper: 'Copper',
+          critical_minerals: 'Critical Minerals',
+          uranium: 'Uranium',
+          rare_earth: 'Rare Earths',
+          region_usa: 'USA',
+          region_canada: 'Canada',
+          region_australia: 'Australia',
+          region_china: 'China',
+          region_latin_america: 'Latin America',
+          region_africa: 'Africa'
+        };
+        return labels[tab] || tab;
+      };
+
+      if (loading) {
+        return (
+          <div className="loading" style={{ height: '100vh' }}>
+            <div className="loading-spinner"></div>
+          </div>
+        );
+      }
+
+      if (showOnboarding) {
+        return (
+          <Onboarding 
+            onComplete={handleOnboardingComplete}
+            onGoogleSignIn={handleGoogleSignIn}
+            user={user}
+          />
+        );
+      }
+
+      return (
+        <>
+          {/* Header */}
+          <header className="header">
+            <div>
+              <div className="logo">cho<span className="gold-l">l</span>e</div>
+              <div className="tagline">Revolutionizing Mining News with AI</div>
+            </div>
+            <div style={{ position: 'relative' }}>
+              <button className="profile-btn" onClick={handleProfileClick}>
+                {user?.photoURL ? (
+                  <img src={user.photoURL} alt="Profile" />
+                ) : (
+                  Icons.user
+                )}
+              </button>
+              {showProfileMenu && user && (
+                <div className="profile-menu">
+                  <div className="profile-menu-email">{user.email}</div>
+                  <div className="profile-menu-item" onClick={handleSignOut}>Sign Out</div>
+                </div>
+              )}
+            </div>
+          </header>
+
+          {/* Main Content */}
+          {activeNav === 'news' && (
+            <>
+              {/* Price Bar - ZACQ Style */}
+              <div className="price-bar-container">
+                <div className="price-bar-header">
+                  <div className="price-bar-left">
+                    <span className="price-bar-title">Commodity Prices</span>
+                    <span className="price-bar-badge">Previous Close</span>
+                  </div>
+                  <div className="date-selector">
+                    <span>1/16 (Thu)</span>
+                    {Icons.chevron}
+                  </div>
+                </div>
+                <div className="price-grid">
+                  {SAMPLE_PRICES.slice(0, 8).map((price, i) => (
+                    <div key={i} className="price-item">
+                      <div className="price-symbol">{price.symbol}</div>
+                      <div className="price-value">{price.value}</div>
+                      <div className={`price-change ${price.up ? 'up' : 'down'}`}>
+                        {price.up ? '▲' : '▼'}{price.change}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="tabs-container">
+                <div className="tabs">
+                  {getTabs().map(tab => (
+                    <div 
+                      key={tab}
+                      className={`tab ${activeTab === tab ? 'active' : ''}`}
+                      onClick={() => setActiveTab(tab)}
+                    >
+                      {getTabLabel(tab)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* News Content */}
+              {activeTab === 'spotlight' ? (
+                <SpotlightView data={SPOTLIGHT_DATA} />
+              ) : (
+                <div className="news-container">
+                  {(activeTab === 'junior' ? SAMPLE_JUNIOR_NEWS : SAMPLE_NEWS).map(article => (
+                    <div 
+                      key={article.id} 
+                      className="news-card"
+                      onClick={() => setSelectedArticle(article)}
+                    >
+                      <div className="news-image">
+                        <img src={article.image} alt="" />
+                        <div className="news-source-badge">{article.source}</div>
+                      </div>
+                      <div className="news-content">
+                        <h3 className="news-headline">{article.headline}</h3>
+                        <div className="news-meta">
+                          <span className="news-source">
+                            {article.source} {article.sourceCount > 1 && `+${article.sourceCount - 1}`}
+                          </span>
+                          <span className="news-category">{article.category}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeNav === 'media' && (
+            <div className="media-container">
+              <h2 style={{ marginBottom: 20 }}>Today's Briefing</h2>
+              <div className="podcast-card">
+                <div className="podcast-header">
+                  <div className="podcast-artwork">
+                    {Icons.headphones}
+                  </div>
+                  <div className="podcast-info">
+                    <div className="podcast-title">Mining Daily Briefing</div>
+                    <div className="podcast-date">January 16, 2026</div>
+                    <div className="podcast-duration">3 min</div>
+                  </div>
+                </div>
+                <div className="audio-player">
+                  <audio controls style={{ width: '100%' }}>
+                    <source src="" type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bottom Navigation */}
+          <nav className="bottom-nav">
+            <div 
+              className={`nav-item ${activeNav === 'news' ? 'active' : ''}`}
+              onClick={() => setActiveNav('news')}
+            >
+              {Icons.home}
+              <span>News</span>
+            </div>
+            <div 
+              className={`nav-item ${activeNav === 'media' ? 'active' : ''}`}
+              onClick={() => setActiveNav('media')}
+            >
+              {Icons.play}
+              <span>Media</span>
+            </div>
+          </nav>
+
+          {/* Article Detail Modal */}
+          {selectedArticle && (
+            <ArticleModal 
+              article={selectedArticle} 
+              onClose={() => setSelectedArticle(null)} 
+            />
+          )}
+        </>
+      );
+    }
+
+    // Onboarding Component
+    function Onboarding({ onComplete, onGoogleSignIn, user }) {
+      const [step, setStep] = React.useState(0);
+      const [answers, setAnswers] = React.useState({
+        commodity: [],
+        region: []
+      });
+      const [started, setStarted] = React.useState(false);
+      const [signingIn, setSigningIn] = React.useState(false);
+
+      const handleSignInClick = () => {
+        setSigningIn(true);
+        onGoogleSignIn();
+      };
+
+      const currentQuestion = ONBOARDING_QUESTIONS[step];
+      const isLastStep = step === ONBOARDING_QUESTIONS.length - 1;
+
+      const handleSelect = (value) => {
+        const currentAnswers = answers[currentQuestion.id] || [];
+        if (currentAnswers.includes(value)) {
+          setAnswers({ 
+            ...answers, 
+            [currentQuestion.id]: currentAnswers.filter(v => v !== value) 
+          });
+        } else {
+          setAnswers({ 
+            ...answers, 
+            [currentQuestion.id]: [...currentAnswers, value] 
+          });
+        }
+      };
+
+      const isSelected = (value) => {
+        const currentAnswers = answers[currentQuestion.id] || [];
+        return currentAnswers.includes(value);
+      };
+
+      const hasSelection = () => {
+        const currentAnswers = answers[currentQuestion.id] || [];
+        return currentAnswers.length > 0;
+      };
+
+      const handleNext = () => {
+        if (isLastStep) {
+          onComplete(answers);
+        } else {
+          setStep(step + 1);
+        }
+      };
+
+      const handleBack = () => {
+        if (step > 0) setStep(step - 1);
+      };
+
+      if (!started && !user) {
+        // Welcome screen - only show if not started AND no user
+        return (
+          <div className="onboarding-overlay">
+            <div className="onboarding-container">
+              <div className="onboarding-welcome">
+                <div style={{ textAlign: 'center' }}>
+                  <div className="onboarding-logo">cho<span className="gold-l">l</span>e</div>
+                  <div className="onboarding-tagline">Revolutionizing Mining News with AI</div>
+                </div>
+              </div>
+              
+              <div style={{ paddingBottom: 40 }}>
+                <button 
+                  className="google-signin-btn" 
+                  onClick={handleSignInClick}
+                  disabled={signingIn}
+                  style={signingIn ? { opacity: 0.7 } : {}}
+                >
+                  {signingIn ? (
+                    <>Redirecting to Google...</>
+                  ) : (
+                    <>
+                      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                      Continue with Google
+                    </>
+                  )}
+                </button>
+                <div className="skip-signin" onClick={() => setStarted(true)}>
+                  Continue as Guest
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="onboarding-overlay">
+          <div className="onboarding-container">
+            <div className="onboarding-progress">
+              {ONBOARDING_QUESTIONS.map((_, i) => (
+                <div key={i} className={`progress-dot ${i <= step ? 'active' : ''}`} />
+              ))}
+            </div>
+
+            <h2 className="onboarding-question">{currentQuestion.question}</h2>
+            {currentQuestion.subtext && (
+              <p className="onboarding-subtext">{currentQuestion.subtext}</p>
+            )}
+
+            <div className="onboarding-options">
+              {currentQuestion.options.map(option => {
+                const selected = isSelected(option.value);
+                return (
+                  <div
+                    key={option.value}
+                    className={`onboarding-option${selected ? ' selected' : ''}`}
+                    onClick={() => handleSelect(option.value)}
+                    style={selected ? { borderColor: '#d4a853', background: 'rgba(212, 168, 83, 0.1)' } : {}}
+                  >
+                    <div className="onboarding-option-text">
+                      <div className="onboarding-option-label">{option.label}</div>
+                    </div>
+                    {selected && (
+                      <div className="option-checkmark">✓</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="onboarding-nav">
+              {step > 0 && (
+                <button className="onboarding-btn secondary" onClick={handleBack}>
+                  Back
+                </button>
+              )}
+              <button 
+                className="onboarding-btn primary" 
+                onClick={handleNext}
+                disabled={!hasSelection()}
+              >
+                {isLastStep ? 'Get Started' : 'Next'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Article Modal Component
+    function ArticleModal({ article, onClose }) {
+      return (
+        <div className="modal-overlay active" onClick={onClose}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <span className="news-category">{article.category}</span>
+              <button className="modal-close" onClick={onClose}>
+                {Icons.close}
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="detail-image">
+                <img src={article.image} alt="" />
+              </div>
+              
+              <div className="detail-sources">
+                <div className="source-icons">
+                  <div className="source-icon"></div>
+                  {article.sourceCount > 1 && <div className="source-icon"></div>}
+                </div>
+                <span className="source-count">{article.sourceCount} sources</span>
+              </div>
+
+              <h1 className="detail-headline">{article.headline}</h1>
+
+              <div className="detail-bullets">
+                {article.bullets.map((bullet, i) => (
+                  <div key={i} className="bullet-item">
+                    <div className="bullet-dot"></div>
+                    <div>
+                      <p className="bullet-text">{bullet.text}</p>
+                      <span className="bullet-source">{bullet.source}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="ask-ai-container">
+                <input 
+                  type="text" 
+                  className="ask-ai-input" 
+                  placeholder="Ask follow-up..."
+                />
+                <button className="ask-ai-btn">{Icons.mic}</button>
+                <button className="ask-ai-btn">{Icons.search}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Spotlight Component
+    function SpotlightView({ data }) {
+      return (
+        <div className="spotlight-container">
+          <div className="spotlight-header">
+            <span className="spotlight-badge">Company Spotlight</span>
+            <span className="spotlight-week">Week of Jan 13-19</span>
+          </div>
+
+          <div className="spotlight-company-header">
+            <h1 className="spotlight-company-name">{data.name}</h1>
+            <div className="spotlight-tickers">
+              {data.tickers.map((ticker, i) => (
+                <span key={i} className="spotlight-ticker">{ticker}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Opportunity Section */}
+          <div className="spotlight-section">
+            <h2 className="spotlight-section-title">{data.sections.opportunity.title}</h2>
+            <p className="spotlight-text" dangerouslySetInnerHTML={{ __html: data.sections.opportunity.content }} />
+          </div>
+
+          {/* Core Asset Section */}
+          <div className="spotlight-section">
+            <h2 className="spotlight-section-title">{data.sections.coreAsset.title}</h2>
+            <p className="spotlight-text" dangerouslySetInnerHTML={{ __html: data.sections.coreAsset.content }} />
+            
+            <div className="spotlight-stats" style={{ marginTop: 16 }}>
+              {data.sections.coreAsset.partnerships.map((p, i) => (
+                <div key={i} className="spotlight-stat">
+                  <div className="spotlight-stat-label">{p.name}</div>
+                  <div className="spotlight-stat-value" style={{ fontSize: 12, fontWeight: 400 }}>{p.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Copper Section */}
+          <div className="spotlight-section">
+            <h2 className="spotlight-section-title">{data.sections.copper.title}</h2>
+            <p className="spotlight-text" dangerouslySetInnerHTML={{ __html: data.sections.copper.content }} />
+            
+            <div className="spotlight-stats">
+              {data.sections.copper.stats.map((stat, i) => (
+                <div key={i} className="spotlight-stat">
+                  <div className="spotlight-stat-label">{stat.label}</div>
+                  <div className="spotlight-stat-value">{stat.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Investment Thesis */}
+          <div className="spotlight-section">
+            <h2 className="spotlight-section-title">{data.sections.thesis.title}</h2>
+            {data.sections.thesis.points.map((point, i) => (
+              <div key={i} className="spotlight-thesis-item">
+                <div className="spotlight-thesis-title">{i + 1}. {point.title}</div>
+                <div className="spotlight-thesis-desc">{point.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          <a href={data.website} target="_blank" rel="noopener noreferrer" className="spotlight-cta">
+            Visit {data.name} →
+          </a>
+
+          <p className="spotlight-disclaimer">
+            This spotlight is for informational purposes. Conduct your own due diligence before investing.
+          </p>
+        </div>
+      );
+    }
+
+    // Render App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

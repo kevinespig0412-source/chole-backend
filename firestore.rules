@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public read for news and content
+    match /daily_news/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    match /junior_news/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    match /daily_media/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    match /commodity_prices/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    match /company_spotlight/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // User preferences - users can only read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
