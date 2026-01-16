@@ -1,0 +1,67 @@
+name: Daily Mining News Update
+
+on:
+  schedule:
+    # Run at 6 AM ET (11:00 UTC during EST, 10:00 UTC during EDT)
+    # Using 11:00 UTC to account for EST
+    - cron: '0 11 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Fetch Commodity Prices
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: python chole_price_fetcher.py
+      
+      - name: Fetch and Process News
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python chole_news_fetcher.py
+      
+      - name: Generate Podcast
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python chole_podcast_generator.py
+      
+      - name: Update completion timestamp
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          python -c "
+          import json
+          import os
+          from datetime import datetime
+          import firebase_admin
+          from firebase_admin import credentials, firestore
+          
+          service_account = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT', '{}'))
+          cred = credentials.Certificate(service_account)
+          firebase_admin.initialize_app(cred)
+          db = firestore.client()
+          
+          db.collection('system').document('status').set({
+              'lastUpdate': firestore.SERVER_TIMESTAMP,
+              'lastUpdateDate': datetime.now().strftime('%Y-%m-%d'),
+              'status': 'success'
+          })
+          print('Status updated')
+          "

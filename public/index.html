@@ -566,6 +566,36 @@
       color: var(--text-secondary);
     }
 
+    /* AI Response */
+    .ai-response {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--accent-gold);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ai-response-header {
+      margin-bottom: 12px;
+    }
+
+    .ai-badge {
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-copper));
+      color: var(--bg-primary);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .ai-response-text {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+    }
+
     /* Bottom Navigation */
     .bottom-nav {
       position: fixed;
@@ -1103,6 +1133,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-functions-compat.js"></script>
 
   <!-- React -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -1348,6 +1379,12 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
       const [activeTab, setActiveTab] = React.useState('today');
       const [selectedArticle, setSelectedArticle] = React.useState(null);
       const [showProfileMenu, setShowProfileMenu] = React.useState(false);
+      
+      // Data state
+      const [newsData, setNewsData] = React.useState(null);
+      const [priceData, setPriceData] = React.useState(null);
+      const [podcastData, setPodcastData] = React.useState(null);
+      const [dataLoading, setDataLoading] = React.useState(true);
 
       const handleProfileClick = () => {
         if (user) {
@@ -1366,13 +1403,38 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
         }
       }, [showProfileMenu]);
 
+      // Fetch data from Firestore
+      React.useEffect(() => {
+        const fetchData = async () => {
+          try {
+            // Fetch news
+            const newsDoc = await db.collection('daily_news').doc('latest').get();
+            if (newsDoc.exists) {
+              setNewsData(newsDoc.data());
+            }
+            
+            // Fetch prices
+            const priceDoc = await db.collection('commodity_prices').doc('latest').get();
+            if (priceDoc.exists) {
+              setPriceData(priceDoc.data());
+            }
+            
+            // Fetch podcast
+            const podcastDoc = await db.collection('daily_media').doc('latest').get();
+            if (podcastDoc.exists) {
+              setPodcastData(podcastDoc.data());
+            }
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+          setDataLoading(false);
+        };
+        
+        fetchData();
+      }, []);
+
       // Auth state listener
       React.useEffect(() => {
-        // Check for redirect result first
-        auth.getRedirectResult().catch((error) => {
-          console.error('Redirect result error:', error);
-        });
-
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
           setUser(user);
           
@@ -1422,11 +1484,18 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
       const handleGoogleSignIn = async () => {
         try {
           const provider = new firebase.auth.GoogleAuthProvider();
-          // Always use redirect - more reliable across all browsers
-          await auth.signInWithRedirect(provider);
+          // Use popup - works better in incognito mode
+          const result = await auth.signInWithPopup(provider);
+          console.log('Signed in:', result.user.email);
         } catch (error) {
           console.error('Sign in error:', error);
-          alert('Sign in failed. Please try again or continue as guest.');
+          if (error.code === 'auth/popup-blocked') {
+            alert('Popup was blocked. Please allow popups for this site or try a regular browser window (not incognito).');
+          } else if (error.code === 'auth/popup-closed-by-user') {
+            // User closed popup, do nothing
+          } else {
+            alert('Sign in failed: ' + error.message);
+          }
         }
       };
 
@@ -1503,6 +1572,31 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
         return labels[tab] || tab;
       };
 
+      // Get articles for current tab
+      const getArticlesForTab = (tab) => {
+        if (!newsData) return SAMPLE_NEWS;
+        
+        if (tab === 'junior') {
+          return newsData.junior || SAMPLE_JUNIOR_NEWS;
+        }
+        
+        // Check if tab exists in newsData
+        if (newsData[tab]) {
+          return newsData[tab];
+        }
+        
+        // Fallback to sample data
+        return SAMPLE_NEWS;
+      };
+
+      // Get prices for display
+      const getPrices = () => {
+        if (priceData?.commodities) {
+          return priceData.commodities.slice(0, 8);
+        }
+        return SAMPLE_PRICES;
+      };
+
       if (loading) {
         return (
           <div className="loading" style={{ height: '100vh' }}>
@@ -1557,12 +1651,12 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
                     <span className="price-bar-badge">Previous Close</span>
                   </div>
                   <div className="date-selector">
-                    <span>1/16 (Thu)</span>
+                    <span>{new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', weekday: 'short' }).replace(',', ' (') + ')'}</span>
                     {Icons.chevron}
                   </div>
                 </div>
                 <div className="price-grid">
-                  {SAMPLE_PRICES.slice(0, 8).map((price, i) => (
+                  {getPrices().map((price, i) => (
                     <div key={i} className="price-item">
                       <div className="price-symbol">{price.symbol}</div>
                       <div className="price-value">{price.value}</div>
@@ -1594,7 +1688,7 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
                 <SpotlightView data={SPOTLIGHT_DATA} />
               ) : (
                 <div className="news-container">
-                  {(activeTab === 'junior' ? SAMPLE_JUNIOR_NEWS : SAMPLE_NEWS).map(article => (
+                  {getArticlesForTab(activeTab).map(article => (
                     <div 
                       key={article.id} 
                       className="news-card"
@@ -1629,17 +1723,32 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
                     {Icons.headphones}
                   </div>
                   <div className="podcast-info">
-                    <div className="podcast-title">Mining Daily Briefing</div>
-                    <div className="podcast-date">January 16, 2026</div>
-                    <div className="podcast-duration">3 min</div>
+                    <div className="podcast-title">{podcastData?.title || 'Mining Daily Briefing'}</div>
+                    <div className="podcast-date">{podcastData?.date ? new Date(podcastData.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                    <div className="podcast-duration">{podcastData?.durationFormatted || '3 min'}</div>
                   </div>
                 </div>
                 <div className="audio-player">
-                  <audio controls style={{ width: '100%' }}>
-                    <source src="" type="audio/mpeg" />
-                    Your browser does not support the audio element.
-                  </audio>
+                  {podcastData?.audioUrl ? (
+                    <audio controls style={{ width: '100%' }}>
+                      <source src={podcastData.audioUrl} type="audio/mpeg" />
+                      Your browser does not support the audio element.
+                    </audio>
+                  ) : (
+                    <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+                      <p>Podcast generating...</p>
+                      <p style={{ fontSize: '12px', marginTop: '8px' }}>New episodes available daily at 6 AM ET</p>
+                    </div>
+                  )}
                 </div>
+                {podcastData?.script && (
+                  <div style={{ marginTop: '16px', padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '12px' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginBottom: '8px' }}>TRANSCRIPT</div>
+                    <div style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.6', maxHeight: '200px', overflow: 'auto' }}>
+                      {podcastData.script}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -1681,12 +1790,6 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
         region: []
       });
       const [started, setStarted] = React.useState(false);
-      const [signingIn, setSigningIn] = React.useState(false);
-
-      const handleSignInClick = () => {
-        setSigningIn(true);
-        onGoogleSignIn();
-      };
 
       const currentQuestion = ONBOARDING_QUESTIONS[step];
       const isLastStep = step === ONBOARDING_QUESTIONS.length - 1;
@@ -1741,20 +1844,9 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
               </div>
               
               <div style={{ paddingBottom: 40 }}>
-                <button 
-                  className="google-signin-btn" 
-                  onClick={handleSignInClick}
-                  disabled={signingIn}
-                  style={signingIn ? { opacity: 0.7 } : {}}
-                >
-                  {signingIn ? (
-                    <>Redirecting to Google...</>
-                  ) : (
-                    <>
-                      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-                      Continue with Google
-                    </>
-                  )}
+                <button className="google-signin-btn" onClick={onGoogleSignIn}>
+                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                  Continue with Google
                 </button>
                 <div className="skip-signin" onClick={() => setStarted(true)}>
                   Continue as Guest
@@ -1819,8 +1911,48 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
       );
     }
 
-    // Article Modal Component
+    // Article Modal Component with AI Follow-up
     function ArticleModal({ article, onClose }) {
+      const [question, setQuestion] = React.useState('');
+      const [aiResponse, setAiResponse] = React.useState('');
+      const [aiLoading, setAiLoading] = React.useState(false);
+
+      const handleAskAI = async () => {
+        if (!question.trim()) return;
+        
+        setAiLoading(true);
+        setAiResponse('');
+        
+        try {
+          // Call the Cloud Function
+          const askFollowup = firebase.functions().httpsCallable('askFollowup');
+          const result = await askFollowup({
+            articleId: article.id,
+            question: question,
+            articleContext: {
+              headline: article.headline,
+              source: article.source,
+              summary: article.summary,
+              bullets: article.bullets
+            }
+          });
+          
+          setAiResponse(result.data.response);
+        } catch (error) {
+          console.error('AI error:', error);
+          setAiResponse('Sorry, I was unable to process your question. Please try again.');
+        }
+        
+        setAiLoading(false);
+      };
+
+      const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleAskAI();
+        }
+      };
+
       return (
         <div className="modal-overlay active" onClick={onClose}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -1840,13 +1972,13 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
                   <div className="source-icon"></div>
                   {article.sourceCount > 1 && <div className="source-icon"></div>}
                 </div>
-                <span className="source-count">{article.sourceCount} sources</span>
+                <span className="source-count">{article.sourceCount || 1} source{article.sourceCount > 1 ? 's' : ''}</span>
               </div>
 
               <h1 className="detail-headline">{article.headline}</h1>
 
               <div className="detail-bullets">
-                {article.bullets.map((bullet, i) => (
+                {article.bullets?.map((bullet, i) => (
                   <div key={i} className="bullet-item">
                     <div className="bullet-dot"></div>
                     <div>
@@ -1857,15 +1989,58 @@ Recent drilling has confirmed the continuation of copper mineralization, with in
                 ))}
               </div>
 
+              {/* AI Response */}
+              {aiResponse && (
+                <div className="ai-response">
+                  <div className="ai-response-header">
+                    <span className="ai-badge">AI Analysis</span>
+                  </div>
+                  <p className="ai-response-text">{aiResponse}</p>
+                </div>
+              )}
+
+              {/* Ask AI Input */}
               <div className="ask-ai-container">
                 <input 
                   type="text" 
                   className="ask-ai-input" 
-                  placeholder="Ask follow-up..."
+                  placeholder="Ask a follow-up question..."
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={aiLoading}
                 />
-                <button className="ask-ai-btn">{Icons.mic}</button>
-                <button className="ask-ai-btn">{Icons.search}</button>
+                <button 
+                  className="ask-ai-btn" 
+                  onClick={handleAskAI}
+                  disabled={aiLoading || !question.trim()}
+                >
+                  {aiLoading ? (
+                    <div className="loading-spinner" style={{ width: 16, height: 16, borderWidth: 2 }}></div>
+                  ) : (
+                    Icons.search
+                  )}
+                </button>
               </div>
+              
+              {/* View Source Link */}
+              {article.link && (
+                <a 
+                  href={article.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'block',
+                    textAlign: 'center',
+                    marginTop: '16px',
+                    color: 'var(--accent-gold)',
+                    fontSize: '14px',
+                    textDecoration: 'none'
+                  }}
+                >
+                  Read full article at {article.source} →
+                </a>
+              )}
             </div>
           </div>
         </div>
